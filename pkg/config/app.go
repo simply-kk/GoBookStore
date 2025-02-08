@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 var db *gorm.DB
 
 func Connect() {
 	var err error
-	db, err = gorm.Open("mysql", "username:password@tcp(127.0.0.1:3306)/dbname?charset=utf8&parseTime=True&loc=Local")
 
+	// Correct DSN format for GORM v2
+	dsn := "root:5427@tcp(127.0.0.1:3306)/bookStore?charset=utf8mb4&parseTime=True&loc=Local"
+
+	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to the database:", err)
 	}

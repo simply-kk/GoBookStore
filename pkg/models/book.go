@@ -1,7 +1,11 @@
 package models
 
 import (
-	"github.com/jinzhu/gorm"
+	"log"
+
+	"gorm.io/gorm"
+	// "gorm.io/gorm/logger"
+
 	"github.com/simply-kk/GoBookStore/pkg/config"
 )
 
@@ -9,7 +13,7 @@ var db *gorm.DB
 
 // Book struct represents the database model
 type Book struct {
-	gorm.Model
+	ID          uint   `gorm:"primaryKey" json:"id"`
 	Name        string `json:"name"`
 	Author      string `json:"author"`
 	Publication string `json:"publication"`
@@ -21,8 +25,8 @@ func init() {
 	db = config.GetDB()
 
 	// Ensure table creation with error handling
-	if err := db.AutoMigrate(&Book{}).Error; err != nil {
-		panic("Failed to migrate database: " + err.Error())
+	if err := db.AutoMigrate(&Book{}); err != nil {
+		log.Fatal("Failed to migrate database:", err)
 	}
 }
 
@@ -34,21 +38,20 @@ func (b *Book) CreateBook() *Book {
 
 // GetAllBooks retrieves all books from the database
 func GetAllBooks() []Book {
-	var Books []Book
-	db.Find(&Books)
-	return Books
+	var books []Book
+	db.Find(&books)
+	return books
 }
 
 // GetBookById retrieves a book by ID
-func GetBookById(Id int64) (*Book, *gorm.DB) {
-	var GetBook Book
-	dbResult := db.Where("ID=?", Id).Find(&GetBook)
-	return &GetBook, dbResult
+func GetBookById(Id uint) (*Book, *gorm.DB) {
+	var getBook Book
+	dbResult := db.First(&getBook, Id)
+	return &getBook, dbResult
 }
 
 // DeleteBook deletes a book by ID
-func DeleteBook(ID int64) Book {
+func DeleteBook(ID uint) {
 	var book Book
-	db.Where("ID=?", ID).Delete(&book)
-	return book
+	db.Delete(&book, ID)
 }
